@@ -184,12 +184,14 @@
         const rent = document.getElementById("rent")
         const food = document.getElementById("food")
 
-        const ACCOUNTS = [
-            { title: "project 1", amount: 25000, type: "income", category: "salary", note: "fake note" },
-            { title: "petrol", amount: 500, type: "expense", category: "transport", note: "xyz bike" },
-            { title: "pani puri", amount: 50, type: "expense", category: "food", note: "abc" },
-            { title: "pizza", amount: 50, type: "expense", category: "food", note: "pqr" },
-        ]
+        const ACCOUNTS = JSON.parse(localStorage.getItem("budget"))
+
+        // const ACCOUNTS = [
+        //     { title: "project 1", amount: 25000, type: "income", category: "salary", note: "fake note" },
+        //     { title: "petrol", amount: 500, type: "expense", category: "transport", note: "xyz bike" },
+        //     { title: "pani puri", amount: 50, type: "expense", category: "food", note: "abc" },
+        //     { title: "pizza", amount: 50, type: "expense", category: "food", note: "pqr" },
+        // ]
 
         const handleAdd = () => {
             ACCOUNTS.splice(0, 0, {
@@ -200,6 +202,7 @@
                 note: note.value
             })
 
+            localStorage.setItem("budget", JSON.stringify(ACCOUNTS)) || []
             // reset 
             for (const item of [title, amount, type, category, note]) {
                 item.value = ""
@@ -208,19 +211,20 @@
         }
 
         const display = (arg, cat) => {
-            let str = ``
+            let str = ``, i = 1
             const filteredData = ACCOUNTS
                 .filter(item => arg ? item.type === arg : item)
                 .filter(item => cat ? item.category === cat : item)
             for (const item of filteredData) {
                 str += `<tr class="${item.type === "expense" && 'table-danger'}">
-                            <td>3</td>
+                            <td>${i}</td>
                             <td>${item.title}</td>
                             <td class="${item.type === "income" && 'table-success'}">${item.amount}</td>
                             <td>${item.type}</td>
                             <td>${item.category}</td>
                             <td>${item.note}</td>
                         </tr>`
+                i++
             }
             document.getElementById("root").innerHTML = str
 
@@ -237,18 +241,17 @@
             expense.innerHTML = totalexpense
             balance.innerHTML = totalbalance
 
-            const totalFoodCost = ACCOUNTS
+            const totalFoodCost = (ACCOUNTS
                 .filter(item => item.category === "food")
-                .reduce((sum, item) => item.amount + sum, 0) / totalexpense * 100
+                .reduce((sum, item) => item.amount + sum, 0) / totalexpense * 100) || 0
 
-            const totalRentCost = ACCOUNTS
+            const totalRentCost = (ACCOUNTS
                 .filter(item => item.category === "rent")
-                .reduce((sum, item) => item.amount + sum, 0) / totalexpense * 100
+                .reduce((sum, item) => item.amount + sum, 0) / totalexpense * 100) || 0
 
-            const totalTransportCost = ACCOUNTS
+            const totalTransportCost = (ACCOUNTS
                 .filter(item => item.category === "transport")
-                .reduce((sum, item) => item.amount + sum, 0) / totalexpense * 100
-
+                .reduce((sum, item) => item.amount + sum, 0) / totalexpense * 100) || 0
             food.style.width = `${(Number(totalRentCost).toFixed(2))}%`
             rent.style.width = ` ${(Number(totalFoodCost).toFixed(2))}%`
             transport.style.width = ` ${(Number(totalTransportCost).toFixed(2))}%`
